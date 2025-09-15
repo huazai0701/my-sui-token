@@ -65,7 +65,7 @@ module multi_token_package::ico_coin {
     fun init(witness: ICO_COIN, ctx: &mut sui::tx_context::TxContext) {
         // 设置代币图标URL
         let icon_url = std::option::some(sui::url::new_unsafe_from_bytes(
-            b"https://magenta-quickest-fly-406.mypinata.cloud/ipfs/bafkreiatacmygy63ulv6r5gzqs4ic6l7fucsavftuzwhrquak6mldfax7m"
+            b"https://magenta-quickest-fly-406.mypinata.cloud/ipfs/bafkreibiiffprjvznukjsut6jqz6dik7zghlv6ycvpdocgx4dgzi4jxsc4"
         ));
 
         // 创建代币
@@ -275,7 +275,7 @@ module multi_token_package::ico_coin {
             string::utf8(b"Zeo"),       // 符号
             9u8,                        // 精度
             string::utf8(b"10000000"),  // 总供应量
-            string::utf8(b"https://magenta-quickest-fly-406.mypinata.cloud/ipfs/bafkreiatacmygy63ulv6r5gzqs4ic6l7fucsavftuzwhrquak6mldfax7m") // 图标
+            string::utf8(b"https://magenta-quickest-fly-406.mypinata.cloud/ipfs/bafkreibiiffprjvznukjsut6jqz6dik7zghlv6ycvpdocgx4dgzi4jxsc4") // 图标
         )
     }
 
