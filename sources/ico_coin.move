@@ -15,6 +15,7 @@ module multi_token_package::ico_coin {
     public struct ICO_COIN has drop {}
 
     // --- 事件定义 ---
+    #[allow(unused_field)]
     public struct TokenCreatedEvent has copy, drop {
         total_supply: u64,
         initial_holders: vector<address>,
@@ -45,15 +46,23 @@ module multi_token_package::ico_coin {
     }
     
     // --- 常量定义 ---
-    const E_INVALID_ALLOCATION: u64 = 0;
     const E_INSUFFICIENT_BALANCE: u64 = 1001;
     const E_INVALID_AMOUNT: u64 = 1005;
+    #[allow(unused_const)]
+    const E_INVALID_ALLOCATION: u64 = 0;
+
+    // 预定义地址
+    const TEAM_ADDRESS: address = @0x8f6cb62de26e16d10409921140534d6c1f31ec136c6885250586d9f0fb352160;
+    const COMMUNITY_ADDRESS: address = @0xe304a8a53a84d4f63a3a8c86376d13d81e205eb75cceca5bf388630c002e1070;
+    const LIQUIDITY_ADDRESS: address = @0xb26f312156c464b327c1bb76775d20f8318227552689c0fcbc0f6e31a1389349;
+
+    // 分配数量 (9位小数)
+    const TEAM_ALLOCATION: u64 = 2_000_000_000000000; // 20%
+    const COMMUNITY_ALLOCATION: u64 = 3_000_000_000000000; // 30%
+    const LIQUIDITY_ALLOCATION: u64 = 5_000_000_000000000; // 50%
 
     // --- 合约初始化函数 ---
     fun init(witness: ICO_COIN, ctx: &mut sui::tx_context::TxContext) {
-        let total_supply: u64 = 10_000_000_000000000; // 1000万代币，9位小数
-        let sender = sui::tx_context::sender(ctx);
-
         // 设置代币图标URL
         let icon_url = std::option::some(sui::url::new_unsafe_from_bytes(
             b"https://magenta-quickest-fly-406.mypinata.cloud/ipfs/bafkreiatacmygy63ulv6r5gzqs4ic6l7fucsavftuzwhrquak6mldfax7m"
@@ -70,20 +79,10 @@ module multi_token_package::ico_coin {
             ctx,
         );
 
-        // 合理的代币分配 - 分配给三个不同地址
-        let team_allocation = 2_000_000_000000000; // 20% 给团队
-        let community_allocation = 3_000_000_000000000; // 30% 给社区
-        let liquidity_allocation = 5_000_000_000000000; // 50% 给流动性
-
-        // 预定义地址
-        const TEAM_ADDRESS: address = @0x8f6cb62de26e16d10409921140534d6c1f31ec136c6885250586d9f0fb352160;
-        const COMMUNITY_ADDRESS: address = @0xe304a8a53a84d4f63a3a8c86376d13d81e205eb75cceca5bf388630c002e1070;
-        const LIQUIDITY_ADDRESS: address = @0xb26f312156c464b327c1bb76775d20f8318227552689c0fcbc0f6e31a1389349;
-
         // 分配代币
-        let team_coin = coin::mint(&mut treasury_cap, team_allocation, ctx);
-        let community_coin = coin::mint(&mut treasury_cap, community_allocation, ctx);
-        let liquidity_coin = coin::mint(&mut treasury_cap, liquidity_allocation, ctx);
+        let team_coin = coin::mint(&mut treasury_cap, TEAM_ALLOCATION, ctx);
+        let community_coin = coin::mint(&mut treasury_cap, COMMUNITY_ALLOCATION, ctx);
+        let liquidity_coin = coin::mint(&mut treasury_cap, LIQUIDITY_ALLOCATION, ctx);
 
         // 转移代币到指定地址
         sui::transfer::public_transfer(team_coin, TEAM_ADDRESS); // 团队部分
@@ -94,7 +93,7 @@ module multi_token_package::ico_coin {
         sui::transfer::public_transfer(treasury_cap, @0x0);
         
         // 转移元数据给发布者
-        sui::transfer::public_transfer(metadata, sender);
+        sui::transfer::public_transfer(metadata, sui::tx_context::sender(ctx));
 
         // 触发代币创建事件
         let mut holders = vector::empty<address>();
@@ -103,7 +102,7 @@ module multi_token_package::ico_coin {
         vector::push_back(&mut holders, LIQUIDITY_ADDRESS);
 
         event::emit(TokenCreatedEvent {
-            total_supply,
+            total_supply: 10_000_000_000000000,
             initial_holders: holders,
             decimals: 9u8,
             symbol: string::utf8(b"Zeo"),
